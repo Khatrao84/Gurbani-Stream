@@ -187,7 +187,7 @@ const Config = {
 
 const CHANNELS = [
   { name: "0. ਸੁਖਮਨੀ ਸਾਹਿਬ", type: "time", allowToggle: true },
-  { name: "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCwsMainbmOyv-72To2PuxuA", fallback: "TTK7eNuI3M0", type: "direct", allowToggle: true },
+  { name: "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UC3nqw1kd4AK1q9e68YUoLDQ", fallback: "TTK7eNuI3M0", type: "direct", allowToggle: true },
   { name: "2. ਸ਼੍ਰੀ ਅੰਮ੍ਰਿਤਸਰ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCYn6UEtQ771a_OWSiNBoG8w", type: "direct-rss", allowToggle: true, isRadioHybrid: true, radioUrl: "https://live.sgpc.net:8443/;", radioImage: Config.LOCAL_RADIO_IMG },
   { name: "3. ਸ਼੍ਰੀ ਫਤੇਹਗੜ੍ਹ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCudVHqnOekwcvpzNpY8_ERw", type: "direct-rss", allowToggle: true },
   { name: "4. ਸ਼੍ਰੀ ਕੋਤਵਾਲੀ ਸਾਹਿਬ ਮੋਰਿੰਡਾ ਲਾਈਵ", channelId: "UCri5TwOgoDY3ywUDK9Ar1Lg", type: "direct" },
@@ -553,7 +553,27 @@ const App = {
   }
 };
 App.init(); 
+
+/**
+ * --- LG TV SPLIT VIEW FIX ---
+ * Prevents audio from cutting out when switching to Multi View/HDMI
+ */
+document.addEventListener("visibilitychange", function() {
+    // 1. Protect HTML5 Audio (Channel 0 & Radio Modes)
+    if (UI.bgAudio && !UI.bgAudio.paused) {
+        // If the system tries to pause background audio, force it back on
+        UI.bgAudio.play().catch(e => console.warn("Background Audio Keep-Alive:", e));
+    }
+
+    // 2. Protect YouTube (Standard Channels)
+    // Note: If the TV hardware kills the video decoder, YouTube might still stop.
+    // This attempts to force it to resume or stay active.
+    if (PlayerService.ytPlayer && typeof PlayerService.ytPlayer.playVideo === 'function') {
+        try {
+            PlayerService.ytPlayer.playVideo();
+        } catch(e) { console.warn("YouTube Keep-Alive:", e); }
+    }
+});
 </script>
 </body>
 </html>
-
