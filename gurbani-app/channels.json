@@ -1,0 +1,17 @@
+[
+  { "name": "0. ਸੁਖਮਨੀ ਸਾਹਿਬ", "type": "time", "allowToggle": true },
+  { "name": "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UC3nqw1kd4AK1q9e68YUoLDQ", "fallback": "TTK7eNuI3M0", "type": "direct", "allowToggle": true },
+  { "name": "2. ਸ਼੍ਰੀ ਅੰਮ੍ਰਿਤਸਰ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UCYn6UEtQ771a_OWSiNBoG8w", "type": "direct-rss", "allowToggle": true, "isRadioHybrid": true, "radioUrl": "https://live.sgpc.net:8443/;", "radioImage": "audioharimandar.png" },
+  { "name": "3. ਸ਼੍ਰੀ ਫਤੇਹਗੜ੍ਹ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UCudVHqnOekwcvpzNpY8_ERw", "type": "direct-rss", "allowToggle": true },
+  { "name": "4. ਸ਼੍ਰੀ ਕੋਤਵਾਲੀ ਸਾਹਿਬ ਮੋਰਿੰਡਾ ਲਾਈਵ", "channelId": "UCri5TwOgoDY3ywUDK9Ar1Lg", "type": "direct" },
+  { "name": "5. ਸ਼੍ਰੀ ਆਨੰਦਪੁਰ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UCSx5035_us8h8DOp_YhQDaw", "type": "direct" },
+  { "name": "6. ਸ਼੍ਰੀ ਦਮਦਮਾ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UCY8jMpyRRcdzSf6uLiU6izQ", "type": "direct" },
+  { "name": "7. ਸ਼੍ਰੀ ਦੂਖ-ਨਿਵਾਰਨ ਸਾਹਿਬ ਲੁਧਿਆਣਾ ਲਾਈਵ", "channelId": "UCPKPN4bzM8Ja-F_kIEZoAhA", "type": "direct-rss" },
+  { "name": "8. ਸ਼੍ਰੀ ਦੂਖ-ਨਿਵਾਰਨ ਸਾਹਿਬ ਪਟਿਆਲਾ ਲਾਈਵ", "channelId": "UC7Uf4ZOlCGM3zBCLqcNPtJg", "type": "direct-rss" },
+  { "name": "9. ਸ਼੍ਰੀ ਬਾਬਾ ਦੀਪ ਸਿੰਘ ਜੀ ਅੰਮ੍ਰਿਤਸਰ ਲਾਈਵ", "channelId": "UCxWx-MPft_7mKrFtN6uOaAA", "type": "direct" },
+  { "name": "10. ਸ਼੍ਰੀ ਪੰਜੋਖਰਾ ਸਾਹਿਬ ਅੰਬਾਲਾ ਲਾਈਵ", "channelId": "UCWd5TUzbLUe6_TWKW9vaDmQ", "type": "direct" },
+  { "name": "11. ਸ਼੍ਰੀ ਬੰਗਲਾ ਸਾਹਿਬ ਦਿੱਲੀ ਲਾਈਵ", "channelId": "UCA1Jqo-WXVuMgs4WcD5f5Yw", "type": "auto-rss" },
+  { "name": "12. ਸ਼੍ਰੀ ਸੀਸ ਗੰਜ ਸਾਹਿਬ ਦਿੱਲੀ ਲਾਈਵ", "channelId": "UCm0p8BmL4d914gBefceFxxA", "type": "direct" },
+  { "name": "13. ਸ਼੍ਰੀ ਸਿੰਘ ਸ਼ਹੀਦਾਂ ਸਾਹਿਬ ਸੋਹਾਣਾ ਲਾਈਵ", "channelId": "UCflFRcHHT8Ab7AvjvIVcrQA", "type": "direct" },
+  { "name": "14. ਸ਼੍ਰੀ ਹਜ਼ੂਰ ਸਾਹਿਬ ਲਾਈਵ", "channelId": "UCuerQ47I9Y2qxr4eIopxbYw", "type": "direct" }
+]
