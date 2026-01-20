@@ -1,15 +1,343 @@
-{
-  "id": "com.gurbanistream.app",
-  "version": "0.1",
-  "vendor": "Gurbani Stream",
-  "type": "web",
-  "main": "index.html",
-  "title": "Gurbani Stream",
-  "icon": "icon.png",
-  "largeIcon": "largeIcon.png",
-  "uiRevision": 2,
-  "resolution": "1920x1080",
-  "transparent": true,
-  "bgColor": "#00000000",
-  "requiredPermissions": ["video.broadcast", "audio", "access.internet", "media.controller"]
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Gurbani Stream</title>
+    <meta name="referrer" content="no-referrer">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@700&display=swap" rel="stylesheet">
+    <script src="webOSTV.js"></script>
+
+    <style>
+        /* --- GLOBAL --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html {
+            width: 100vw; height: 100vh; overflow: hidden;
+            background-color: transparent !important;
+            font-family: "Noto Sans Gurmukhi", sans-serif;
+        }
+
+        /* --- HDMI --- */
+        #broadcast {
+            position: absolute; top: 0; left: 0;
+            width: 1920px; height: 1080px;
+            z-index: -10; background: transparent;
+        }
+
+        /* --- DIMMER --- */
+        #dimmer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: black; opacity: 0; z-index: 150;
+            pointer-events: none; transition: opacity 0.5s ease;
+        }
+        #dimmer.active { opacity: 0.85; }
+
+        /* --- YOUTUBE (Hidden) --- */
+        #yt-wrapper {
+            position: fixed; top: 0; left: -10000px;
+            width: 100%; height: 100%;
+            z-index: 5; background: black;
+        }
+        iframe { width: 100%; height: 100%; border: none; display: block; }
+
+        /* --- UI OVERLAYS --- */
+        
+        /* Channel Name */
+        #channelName {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 31px 20px 10px 20px; 
+            font-size: 32px; font-weight: 700; 
+            text-align: center; z-index: 200; 
+            transform: translateY(0); opacity: 1; transition: opacity 0.5s ease;
+        }
+        #channelName.hidden { opacity: 0 !important; }
+        
+        .style-main { 
+            background: linear-gradient(to top, rgba(102, 0, 153, 0.95) 75%, rgba(102, 0, 153, 0.1) 100%);
+            color: #FFD700 !important; text-shadow: 3px 3px 6px black;
+        }
+
+        /* Loading Spinner */
+        #loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 80px; height: 80px; border: 8px solid rgba(255, 213, 0, 0.2);
+            border-radius: 50%; border-top-color: #ffd500;
+            animation: spin 1s linear infinite; display: none; z-index: 300;
+        }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        
+        /* --- CLOCK --- */
+        #persistent-clock {
+            position: absolute; bottom: 125px; left: 20px; 
+            z-index: 250; display: flex; flex-direction: column;
+            text-align: left; pointer-events: none;
+            opacity: 1; transition: opacity 0.5s ease;
+        }
+        /* Class to hide clock (triggered by double press) */
+        #persistent-clock.hidden { opacity: 0 !important; }
+
+        #persistent-clock .date { order: 1; font-size: 0.7vw; color: #FFE066; text-shadow: 2px 2px 4px black; margin-bottom: 2px; }
+        #persistent-clock .time { order: 2; font-size: 2.0vw; color: #FFD700; text-shadow: 2px 2px 4px black; line-height: 1; }
+    </style>
+</head>
+<body>
+
+    <object id="broadcast" type="video/broadcast" width="1920" height="1080"></object>
+    <div id="dimmer"></div>
+    <div id="yt-wrapper"></div>
+    <audio id="audio-player"></audio>
+
+    <div id="persistent-clock">
+        <div class="date" id="clock-date"></div>
+        <div class="time" id="clock-time"></div>
+    </div>
+
+    <div id="channelName" class="style-main"></div>
+    <div id="loading"></div>
+
+<script>
+const LOCAL_AUDIO = "sukhmani.mp3";
+
+const channels = [
+  { name: "0. ਸੁਖਮਨੀ ਸਾਹਿਬ", type: "time" },
+  { name: "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UC3nqw1kd4AK1q9e68YUoLDQ", type: "youtube" },
+  { name: "2. ਸ਼੍ਰੀ ਅੰਮ੍ਰਿਤਸਰ ਸਾਹਿਬ ਲਾਈਵ (Radio)", type: "radio", radioUrl: "https://live.sgpc.net:8443/;" }
+];
+
+let state = {
+    idx: parseInt(localStorage.getItem('ch')) || 0,
+    nameVisible: true,
+    clockVisible: true,
+    dimmed: false,
+    idleTimer: null,
+    redButtonTimer: null // To track double press
+};
+
+const els = {
+    broadcast: document.getElementById('broadcast'),
+    ytWrap: document.getElementById('yt-wrapper'),
+    chName: document.getElementById('channelName'),
+    load: document.getElementById('loading'),
+    audio: document.getElementById('audio-player'),
+    clockBox: document.getElementById('persistent-clock'),
+    clockTime: document.getElementById('clock-time'),
+    clockDate: document.getElementById('clock-date'),
+    dimmer: document.getElementById('dimmer')
+};
+
+function init() {
+    els.load.style.display = 'block';
+    
+    // HDMI FIX LOOP
+    setInterval(() => {
+        try {
+            els.broadcast.style.width = "1920px";
+            els.broadcast.style.height = "1080px";
+            els.broadcast.width = "1920";
+            els.broadcast.height = "1080";
+            if(window.webOS) {
+                webOS.service.request("luna://com.webos.service.videoDisplay", {
+                    method: "setDisplayWindow",
+                    parameters: {
+                        "displayId": 0, "windowSlotId": 0,
+                        "srcWindow": { "x":0, "y":0, "width":1920, "height":1080 },
+                        "dstWindow": { "x":0, "y":0, "width":1920, "height":1080 },
+                        "fullScreen": true
+                    }
+                });
+            }
+        } catch(e) {}
+    }, 1000);
+
+    setInterval(updateClock, 1000);
+    updateClock();
+    loadChannel(state.idx);
+    window.addEventListener('keydown', handleKey);
 }
+
+function loadChannel(index) {
+    if (index < 0) index = channels.length - 1;
+    if (index >= channels.length) index = 0;
+
+    state.idx = index;
+    localStorage.setItem('ch', index);
+    const ch = channels[index];
+    
+    els.ytWrap.innerHTML = '';
+    els.audio.pause();
+    
+    // Reset Timer & Show Banner
+    updateBanner(ch.name);
+    
+    if(ch.type === 'time') {
+        els.audio.src = LOCAL_AUDIO;
+        els.audio.currentTime = parseFloat(localStorage.getItem('sukhmani_time')) || 0;
+        updateBanner("0. ਸੁਖਮਨੀ ਸਾਹਿਬ (Paused - Press Yellow)");
+        els.load.style.display = 'none';
+        startIdleTimer();
+    }
+    else if(ch.type === 'youtube') {
+        clearTimeout(state.idleTimer);
+        els.load.style.display = 'block';
+        playYouTube(ch.channelId);
+    }
+    else if(ch.type === 'radio') {
+        clearTimeout(state.idleTimer);
+        els.load.style.display = 'block';
+        els.audio.src = ch.radioUrl;
+        els.audio.play()
+            .then(() => els.load.style.display = 'none')
+            .catch(e => console.log("Audio Error:", e));
+    }
+}
+
+function playYouTube(id) {
+    let src = `https://www.youtube.com/embed/live_stream?channel=${id}&autoplay=1&mute=0&controls=0&rel=0&playsinline=1`;
+    const html = `<html><body style='margin:0;padding:0;background:black;overflow:hidden;'><iframe width='100%' height='100%' src='${src}' frameborder='0' allow='autoplay; encrypted-media; fullscreen'></iframe></body></html>`;
+    const iframe = document.createElement('iframe');
+    iframe.srcdoc = html;
+    els.ytWrap.appendChild(iframe);
+    els.load.style.display = 'none';
+}
+
+function handleKey(e) {
+    const c = e.keyCode;
+    
+    // RED BUTTON (403) - DOUBLE PRESS LOGIC
+    if(c === 403) {
+        if (state.redButtonTimer) {
+            // -- DOUBLE PRESS DETECTED --
+            clearTimeout(state.redButtonTimer);
+            state.redButtonTimer = null;
+            toggleAllUI(); // Toggle BOTH Name and Clock
+        } else {
+            // -- WAIT FOR SECOND PRESS --
+            state.redButtonTimer = setTimeout(() => {
+                state.redButtonTimer = null;
+                // Timeout finished, meaning it was a SINGLE press
+                toggleNameOnly(); 
+            }, 300); // 300ms Wait Window
+        }
+    }
+
+    // OTHER KEYS (Immediate Action)
+    else {
+        // NAV
+        if(c === 13 || c === 38 || c === 33 || c === 427) loadChannel(state.idx + 1);
+        else if(c === 40 || c === 34 || c === 428) loadChannel(state.idx - 1);
+        
+        // GREEN (404): REFRESH
+        else if(c === 404) window.location.reload();
+        
+        // YELLOW (405): Audio
+        else if(c === 405) {
+            if(els.audio.src) {
+                if(els.audio.paused) { 
+                    els.audio.play(); 
+                    updateBanner("Audio Resumed");
+                    clearTimeout(state.idleTimer);
+                } else { 
+                    if(channels[state.idx].type === 'time') {
+                        els.audio.loop = !els.audio.loop; 
+                        updateBanner(`Loop: ${els.audio.loop ? "ON" : "OFF"}`);
+                    } else {
+                        els.audio.pause();
+                        updateBanner("Audio Paused");
+                    }
+                    startIdleTimer();
+                }
+            }
+        }
+
+        // BLUE (406): DIMMER
+        else if(c === 406) toggleDimmer();
+        
+        // Restart Ch 0
+        else if((c === 37 || c === 39) && state.idx === 0) {
+            els.audio.currentTime = 0; els.audio.play();
+            updateBanner("0. ਸੁਖਮਨੀ ਸਾਹਿਬ (Restarted)");
+            clearTimeout(state.idleTimer);
+        }
+        
+        // Direct Keys
+        else if (c === 48) loadChannel(0);
+        else if (c === 49) loadChannel(1);
+        else if (c === 50) loadChannel(2);
+    }
+}
+
+// --- UI TOGGLE LOGIC ---
+
+// Single Press: Toggle Name Only
+function toggleNameOnly() {
+    state.nameVisible = !state.nameVisible;
+    if(state.nameVisible) {
+        els.chName.classList.remove('hidden');
+        startIdleTimer(); // Restart auto-hide logic if Ch 0
+    } else {
+        els.chName.classList.add('hidden');
+    }
+}
+
+// Double Press: Toggle Everything (Name + Clock)
+function toggleAllUI() {
+    // If anything is visible, hide everything
+    if (state.nameVisible || state.clockVisible) {
+        state.nameVisible = false;
+        state.clockVisible = false;
+        els.chName.classList.add('hidden');
+        els.clockBox.classList.add('hidden');
+    } 
+    // If everything is hidden, show everything
+    else {
+        state.nameVisible = true;
+        state.clockVisible = true;
+        els.chName.classList.remove('hidden');
+        els.clockBox.classList.remove('hidden');
+        startIdleTimer();
+    }
+}
+
+function startIdleTimer() {
+    clearTimeout(state.idleTimer);
+    if (state.idx === 0 && els.audio.paused) {
+        state.idleTimer = setTimeout(() => {
+            state.nameVisible = false;
+            els.chName.classList.add('hidden');
+            // Clock stays visible on idle auto-hide
+        }, 600000); // 10 Min
+    }
+}
+
+function toggleDimmer() {
+    state.dimmed = !state.dimmed;
+    if(state.dimmed) {
+        els.dimmer.classList.add('active');
+        updateBanner("Low Brightness ON");
+    } else {
+        els.dimmer.classList.remove('active');
+        updateBanner("Brightness Full");
+    }
+}
+
+function updateBanner(text) {
+    els.chName.textContent = text;
+    // Wake up UI if hidden
+    if(!state.nameVisible) {
+        state.nameVisible = true;
+        els.chName.classList.remove('hidden');
+    }
+    startIdleTimer();
+}
+
+function updateClock() {
+    const now = new Date();
+    els.clockTime.textContent = now.toLocaleTimeString('en-US', {hour12:true, hour:'numeric', minute:'2-digit'});
+    els.clockDate.textContent = now.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+    if(state.idx === 0 && !els.audio.paused) localStorage.setItem('sukhmani_time', els.audio.currentTime);
+}
+
+init();
+</script>
+</body>
+</html>
