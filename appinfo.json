@@ -1,0 +1,15 @@
+{
+  "id": "com.gurbanistream.app",
+  "version": "0.1",
+  "vendor": "Gurbani Stream",
+  "type": "web",
+  "main": "index.html",
+  "title": "Gurbani Stream",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "uiRevision": 2,
+  "resolution": "1920x1080",
+  "transparent": true,
+  "bgColor": "#00000000",
+  "requiredPermissions": ["video.broadcast", "audio", "access.internet", "media.controller"]
+}
