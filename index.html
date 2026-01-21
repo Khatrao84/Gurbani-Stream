@@ -48,7 +48,7 @@
       bottom: 0; 
       left: 0; 
       width: 100%;
-      /* UPDATED: 31px Top, 10px Bottom (Moves text UP 1px, Total padding remains 41px) */
+      /* 31px Top, 10px Bottom (Total padding remains 41px) */
       padding: 31px 20px 10px 20px; 
       font-size: 24px; 
       font-weight: bold;
@@ -58,14 +58,19 @@
       opacity: 0;
        }
     
+     /* MAIN STYLE: Purple Background, Gold Text */
      .style-main { 
-        background: linear-gradient(to top, rgba(0, 41, 107, 0.9) 75%, rgba(0,41,107,0.1) 100%);
+        background: linear-gradient(to top, rgba(102, 0, 153, 0.9) 75%, rgba(102, 0, 153, 0.1) 100%);
         color: #FFD700 !important; 
         text-shadow: 2px 2px 4px black;
     }
+
+    /* UPDATED ALT STYLE: Gold Background, Purple Text */
     .style-alt { 
-        background: linear-gradient(to top, rgba(102, 0, 153, 0.95) 75%, rgba(102, 0, 153, 0.1) 100%);
-        color: #00296B !important; 
+        /* Gold gradient: #FFD700 (255, 215, 0) */
+        background: linear-gradient(to top, rgba(255, 215, 0, 0.95) 75%, rgba(255, 215, 0, 0.1) 100%);
+        /* Purple text: #660099 */
+        color: #660099 !important; 
         text-shadow: none;
     }
     #channelName.show { transform: translateY(0); opacity: 1; }
@@ -121,9 +126,10 @@
       color: #f0f0f0;
     }
 
+    /* INSTALL POPUP: Purple Theme */
     #installPopup {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: #00296B; border: 2px solid #FFD700; border-radius: 12px;
+      background: #660099; border: 2px solid #FFD700; border-radius: 12px;
       padding: 20px 25px; z-index: 9999; display: none; 
       box-shadow: 0 10px 30px rgba(0,0,0,0.9);
       color: white; font-family: sans-serif; text-align: center;
@@ -131,7 +137,7 @@
     }
     #installPopup p { margin: 0 0 15px 0; font-size: 18px; line-height: 1.4; }
     #installPopup button {
-      background: #FFD700; color: #00296B; border: none; padding: 12px 25px;
+      background: #FFD700; color: #660099; border: none; padding: 12px 25px;
       font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 16px;
       width: 100%;
     }
@@ -214,7 +220,6 @@ const AppState = {
   currentChannel: getInitialChannel(),
   streamToggle: 0,
   activeLoadId: 0, 
-  // FIX: Initialize lastScrollTime into the future (2s) to block initial load scroll events
   lastScrollTime: Date.now() + 2000, 
   timers: { load: null, banner: null, watchdog: null, refresh: null },
   suppressClick: false
@@ -443,22 +448,16 @@ const App = {
     };
     window.addEventListener('mousemove', wakeUI); window.addEventListener('click', wakeUI);
     
-    // MOUSE WHEEL LOGIC: ANY SCROLL -> BACK
     window.addEventListener('wheel', (e) => {
         if (Math.abs(e.deltaY) < 10) return;
         const now = Date.now();
-        // Throttle check uses lastScrollTime. Since we set it to +2000 at init, 
-        // this returns TRUE (blocked) for the first 2 seconds.
         if (now - AppState.lastScrollTime < Config.KEY_THROTTLE_MS) return; 
         AppState.lastScrollTime = now;
-        
-        // Any direction = Channel Back (-1)
         this.changeChannel(-1);
     });
 
-    // MIDDLE CLICK LOGIC: TOGGLE
     window.addEventListener('mousedown', (e) => {
-        if (e.button === 1) { // Middle button
+        if (e.button === 1) { 
             e.preventDefault(); 
             this.triggerChannelLoad(AppState.currentChannel);
         }
@@ -556,7 +555,3 @@ App.init();
 </script>
 </body>
 </html>
-
-
-
-
