@@ -1,5 +1,5 @@
-// UPDATED TO VERSION 18 (Forces update)
-const CACHE_NAME = 'gurbani-app-v18'; 
+// UPDATED TO VERSION 20 (Forces update)
+const CACHE_NAME = 'gurbani-app-v20'; 
 
 const ASSETS = [
   '/',
