@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gurbani-v30.1'; 
+const CACHE_NAME = 'gurbani-v30.2'; 
 const ASSETS = ['/', '/index.html', '/manifest.json', '/favicon.png', '/haarimandr.png', '/audioharimandar.png'];
 
 self.addEventListener('install', (e) => {
