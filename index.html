@@ -152,7 +152,7 @@ const Config = {
 const CHANNELS = [
   { name: "0. ਸੁਖਮਨੀ ਸਾਹਿਬ", type: "time", allowToggle: true },
   /* --- Channel 1: Original Logic Preserved --- */
-  { name: "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UC3nqw1kd4AK1q9e68YUoLDQ", altChannelId: "UCwsMainbmOyv-72To2PuxuA", fallback: "u8LB6eEpFHE", type: "direct", allowToggle: true },
+  { name: "1. ਸ਼੍ਰੀ ਪਟਨਾ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UC3nqw1kd4AK1q9e68YUoLDQ", altChannelId: "UCwsMainbmOyv-72To2PuxuA", fallback: "u8LB6eEpFHE", type: "auto-rss", allowToggle: true },
   /* --- Other Channels Updated to auto-rss for Stability --- */
   { name: "2. ਸ਼੍ਰੀ ਅੰਮ੍ਰਿਤਸਰ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCYn6UEtQ771a_OWSiNBoG8w", type: "auto-rss", allowToggle: true, isRadioHybrid: true, radioUrl: "https://live.sgpc.net:8443/;", radioImage: Config.LOCAL_RADIO_IMG },
   { name: "3. ਸ਼੍ਰੀ ਫਤੇਹਗੜ੍ਹ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCudVHqnOekwcvpzNpY8_ERw", type: "auto-rss", allowToggle: true },
@@ -167,7 +167,7 @@ const CHANNELS = [
   { name: "11. ਸ਼੍ਰੀ ਬੰਗਲਾ ਸਾਹਿਬ ਦਿੱਲੀ ਲਾਈਵ", channelId: "UCA1Jqo-WXVuMgs4WcD5f5Yw", type: "auto-rss" },
   { name: "12. ਸ਼੍ਰੀ ਸੀਸ ਗੰਜ ਸਾਹਿਬ ਦਿੱਲੀ ਲਾਈਵ", channelId: "UCm0p8BmL4d914gBefceFxxA", type: "auto-rss" },
   { name: "13. ਸ਼੍ਰੀ ਸਿੰਘ ਸ਼ਹੀਦਾਂ ਸਾਹਿਬ ਸੋਹਾਣਾ ਲਾਈਵ", channelId: "UCflFRcHHT8Ab7AvjvIVcrQA", type: "auto-rss" },
-  { name: "14. ਸ਼੍ਰੀ ਹਜ਼ੂਰ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCuerQ47I9Y2qxr4eIopxbYw", type: "direct" }
+  { name: "14. ਸ਼੍ਰੀ ਹਜ਼ੂਰ ਸਾਹਿਬ ਲਾਈਵ", channelId: "UCuerQ47I9Y2qxr4eIopxbYw", type: "auto-rss" }
 ];
 
 function getInitialChannel() {
